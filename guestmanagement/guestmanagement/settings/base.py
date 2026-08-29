@@ -17,6 +17,7 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SITE_NAME = Path(__file__).resolve().parent.parent.parent.name
 
+sys.path.append(str(BASE_DIR / "apps"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
@@ -39,6 +40,9 @@ DEFAULT_APPS = [
 ]
 
 PROJECT_APPS = [
+    'iam.apps.IAMConfig',
+    'core.apps.CoreConfig',
+    'gms.apps.GmsConfig',
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + PROJECT_APPS
@@ -71,8 +75,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = f"{SITE_NAME}.wsgi.application"
-
-
 
 
 # Password validation
@@ -115,3 +117,5 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+AUTH_USER_MODEL = "iam.User"
