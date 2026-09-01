@@ -5,6 +5,11 @@ from iam.models import User
 
 
 class Guest(BaseModel):
+    identification_type_choices = (
+        ("AADHAAR", "Aadhaar"),
+        ("PASSPORT", "Passport"),
+        ("DRIVING_LICENSE", "Driving License"),
+    )
 
     name = models.CharField(
         max_length=255
@@ -16,6 +21,18 @@ class Guest(BaseModel):
         max_length=255,
         unique=True
     )
+    identification_number = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    identification_type = models.CharField(
+        max_length=255,
+        choices=identification_type_choices,
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
@@ -24,8 +41,9 @@ class Guest(BaseModel):
 class Invitation(BaseModel):
     status_choices = (
         ("PENDING", "Pending"),
-        ("Approved", "Approved"),
-        ("Cancelled", "Cancelled"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+        ("CANCELLED", "Cancelled"),
     )
     guest = models.ForeignKey(
         Guest,
@@ -40,6 +58,25 @@ class Invitation(BaseModel):
     purpose = models.TextField()
 
     expected_arrival = models.DateTimeField()
+    expected_departure = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+    status = models.CharField(
+        max_length=255,
+        choices=status_choices,
+        default="PENDING"
+    )
+    invitation_code = models.CharField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    rejection_reason = models.TextField(
+        blank=True,
+        null=True
+    )
     created_at = models.DateTimeField(
         auto_now_add=True
     )
@@ -54,10 +91,12 @@ class Visit(BaseModel):
         ("CHECKED_IN", "Checked In"),
         ("CHECKED_OUT", "Checked Out"),
     )
-    guest = models.ForeignKey(
-        Guest,
+    invitation = models.ForeignKey(
+        Invitation,
         on_delete=models.CASCADE,
-        related_name="visits"
+        related_name="visits",
+        blank=True,
+        null=True
     )
     check_in_time = models.DateTimeField(
         auto_now_add=True
@@ -73,4 +112,4 @@ class Visit(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.guest.name} - {self.check_in_time}"
+        return f"{self.invitation.guest.name} - {self.check_in_time}"

@@ -27,12 +27,19 @@ class DjangoVisitRepository(VisitRepository):
         return Visit.objects.get(pk=pk)
 
     def create_visit(self, data: dict):
+
         return Visit.objects.create(**data)
 
     def update_visit(self, pk: UUID, data: dict):
         visit = Visit.objects.get(pk=pk)
         for key, value in data.items():
             setattr(visit, key, value)
+        visit.save()
+        return visit
+
+    def update_status(self, pk: UUID, status: str):
+        visit = Visit.objects.get(pk=pk)
+        visit.status = status
         visit.save()
         return visit
 
