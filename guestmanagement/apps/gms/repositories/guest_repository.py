@@ -26,6 +26,10 @@ class GuestRepository(ABC):
     def delete_guest(self, pk: UUID):
         pass
 
+    @abstractmethod
+    def get_guest_with_invitations(self, pk: UUID):
+        pass
+
 
 class DjangoGuestRepository(GuestRepository):
 
@@ -53,3 +57,8 @@ class DjangoGuestRepository(GuestRepository):
     def delete_guest(self, pk: UUID):
         guest = self.get_guest_by_id(pk)
         guest.delete()
+
+    def get_guest_with_invitations(self, pk: UUID):
+        return Guest.objects.prefetch_related(
+            "invitations"
+        ).get(pk=pk)

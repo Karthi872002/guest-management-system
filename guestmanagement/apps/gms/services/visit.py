@@ -22,16 +22,28 @@ class VisitService:
 
         return visit
 
+    def update_visit(self, pk, data):
+        if "status" in data:
+            raise ValueError(
+                "Status cannot be updated using update_visit."
+            )
+
+        return self.repo.update_visit(
+            pk=pk,
+            data=data,
+        )
+
     def check_out(self, visit_id):
         visit = self.repo.get_visit_by_id(pk=visit_id)
 
         if visit.status != "CHECKED_IN":
             raise ValueError("Visit is not checked in.")
 
-        return self.repo.set_status(
-            pk=visit_id,
-            status="CHECKED_OUT",
+        visit = self.repo.complete_check_out(
+            pk=visit_id
         )
+
+        return visit
 
     def check_invitation_for_guest(
         self,
