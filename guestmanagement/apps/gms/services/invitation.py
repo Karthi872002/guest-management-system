@@ -1,7 +1,9 @@
+from gms.repositories.invitation_repository import InvitationRepository
+
 
 class InvitationService:
 
-    def __init__(self, repo):
+    def __init__(self, repo: InvitationRepository):
         self.repo = repo
 
     def create_invitation(self, data):

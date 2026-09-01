@@ -1,6 +1,9 @@
+from gms.repositories.visit_repository import VisitRepository
+
+
 class VisitService:
 
-    def __init__(self, repo):
+    def __init__(self, repo: VisitRepository):
         self.repo = repo
 
     def check_in(self, data):

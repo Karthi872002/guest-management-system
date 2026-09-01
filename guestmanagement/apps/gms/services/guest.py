@@ -1,10 +1,10 @@
 from django.core.exceptions import ObjectDoesNotExist
-from gms.repositories import guest_repository
+from gms.repositories.guest_repository import GuestRepository
 
 
 class GuestService:
 
-    def __init__(self, repo):
+    def __init__(self, repo: GuestRepository):
         self.repo = repo
 
     def create_guest(self, data):
