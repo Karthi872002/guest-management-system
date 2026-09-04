@@ -33,6 +33,9 @@ class VisitService:
             data=data,
         )
 
+    def list_visits(self, filters=None):
+        return self.repo.list_visits(filters=filters)
+
     def check_out(self, visit_id):
         visit = self.repo.get_visit_by_id(pk=visit_id)
 
@@ -44,6 +47,9 @@ class VisitService:
         )
 
         return visit
+
+    def delete_visit(self, visit_id):
+        self.repo.delete_visit(pk=visit_id)
 
     def check_invitation_for_guest(
         self,

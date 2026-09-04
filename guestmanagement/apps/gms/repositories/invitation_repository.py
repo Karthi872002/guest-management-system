@@ -34,6 +34,14 @@ class InvitationRepository(ABC):
     def reject_invitation(self, _id: UUID, reason: str):
         pass
 
+    @abstractmethod
+    def list_invitations(self, filters=None):
+        pass
+
+    @abstractmethod
+    def get_invitations_by_guest(self, guest_id: UUID):
+        pass
+
 
 class DjangoInvitationRepository(InvitationRepository):
     def get_invitation_by_id(self, _id: UUID):
@@ -75,3 +83,11 @@ class DjangoInvitationRepository(InvitationRepository):
         invitation.rejection_reason = reason
         invitation.save()
         return invitation
+
+    def list_invitations(self, filters=None):
+        if filters is None:
+            filters = {}
+        return Invitation.objects.filter(**filters).select_related('guest', 'invited_by')
+
+    def get_invitations_by_guest(self, guest_id: UUID):
+        return Invitation.objects.filter(guest_id=guest_id).select_related('invited_by')

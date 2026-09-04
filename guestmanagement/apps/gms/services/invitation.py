@@ -6,7 +6,7 @@ class InvitationService:
     def __init__(self, repo: InvitationRepository):
         self.repo = repo
 
-    def create_invitation(self, data):
+    def create_invitation(self, data, user_id):
         expected_arrival = data.get("expected_arrival")
         guest_id = data.get("guest_id")
 
@@ -19,10 +19,28 @@ class InvitationService:
                 "on the specified date."
             )
 
+        data["invited_by"] = user_id
         return self.repo.create_invitation(data)
 
-    def approve_invitation(self, invitation_id):
+    def _check_approval_permission(self, user, invitation):
+        """Check if the given user is allowed to approve/reject the invitation.
+        - Cannot be the creator of the invitation.
+        - Must have appropriate role (e.g., ADMIN) or is_staff.
+        """
+        # Prevent the creator from approving/rejecting
+        if user.pk == invitation.invited_by.pk:
+            raise ValueError(
+                "The user who created the invitation cannot approve or reject it."
+            )
+        # Only staff/admins can approve/reject
+        if not user.is_staff:
+            raise ValueError(
+                "Only staff members are allowed to approve or reject invitations."
+            )
+
+    def approve_invitation(self, invitation_id, user):
         invitation = self.repo.get_invitation_by_id(pk=invitation_id)
+        self._check_approval_permission(user, invitation)
 
         if invitation.status != "PENDING":
             raise ValueError(
@@ -34,8 +52,9 @@ class InvitationService:
             status="APPROVED",
         )
 
-    def reject_invitation(self, invitation_id, reason):
+    def reject_invitation(self, invitation_id, reason, user):
         invitation = self.repo.get_invitation_by_id(pk=invitation_id)
+        self._check_approval_permission(user, invitation)
 
         if invitation.status != "PENDING":
             raise ValueError(
@@ -82,6 +101,14 @@ class InvitationService:
             _id=invitation_id,
             data=data,
         )
+
+    def list_invitations(self, filters=None):
+
+        return self.repo.list_invitations(filters=filters)
+
+    def get_invitations_by_guest(self, guest_id):
+        """Get all invitations for a specific guest"""
+        return self.repo.get_invitations_by_guest(guest_id=guest_id)
 
     def delete_invitation(self, invitation_id):
         self.repo.delete_invitation(_id=invitation_id)

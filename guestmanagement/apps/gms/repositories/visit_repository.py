@@ -31,6 +31,10 @@ class VisitRepository(ABC):
     def complete_check_out(self, pk: UUID):
         pass
 
+    @abstractmethod
+    def list_visits(self, filters=None):
+        pass
+
 
 class DjangoVisitRepository(VisitRepository):
     def get_visit_by_id(self, pk: UUID):
@@ -67,3 +71,8 @@ class DjangoVisitRepository(VisitRepository):
         visit.check_out_time = timezone.now()
         visit.save()
         return visit
+
+    def list_visits(self, filters=None):
+        if filters is None:
+            filters = {}
+        return Visit.objects.filter(**filters).select_related('invitation__guest')

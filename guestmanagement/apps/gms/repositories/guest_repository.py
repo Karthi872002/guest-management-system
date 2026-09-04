@@ -7,7 +7,7 @@ from gms.models import Guest
 class GuestRepository(ABC):
 
     @abstractmethod
-    def get_guests(self):
+    def get_guests(self, filters=None):
         pass
 
     @abstractmethod
@@ -30,11 +30,19 @@ class GuestRepository(ABC):
     def get_guest_with_invitations(self, pk: UUID):
         pass
 
+    @abstractmethod
+    def get_guest_by_email(self, email: str):
+        pass
+
 
 class DjangoGuestRepository(GuestRepository):
 
-    def get_guests(self):
-        for guest in Guest.objects.all():
+    def get_guests(self, filters=None):
+        if filters is None:
+            filters = {}
+        queryset = Guest.objects.filter(
+            **filters).prefetch_related('invitations')
+        for guest in queryset:
             yield guest
 
     def get_guest_by_id(self, pk: UUID):
@@ -44,7 +52,6 @@ class DjangoGuestRepository(GuestRepository):
             raise Guest.DoesNotExist(f"Guest with id {pk} does not exist.")
 
     def create_guest(self, guest_data: dict):
-
         return Guest.objects.create(**guest_data)
 
     def update_guest(self, pk: UUID, guest_data: dict):
@@ -62,3 +69,10 @@ class DjangoGuestRepository(GuestRepository):
         return Guest.objects.prefetch_related(
             "invitations"
         ).get(pk=pk)
+
+    def get_guest_by_email(self, email: str):
+        try:
+            return Guest.objects.get(email=email)
+        except Guest.DoesNotExist:
+            raise Guest.DoesNotExist(
+                f"Guest with email {email} does not exist.")
