@@ -6,14 +6,15 @@ on:
       - master
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: guest-management-system
-  # Switch registry here: "dockerhub" | "ecr" | "ghcr"
-  REGISTRY: ${{ vars.REGISTRY || 'dockerhub' }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+
+    env:
+      IMAGE_NAME: guest-management-system
+      # Switch registry here: "dockerhub" | "ecr" | "ghcr"
+      REGISTRY: ${{ vars.REGISTRY || 'dockerhub' }}
     permissions:
       contents: read        # checkout
       packages: write       # ghcr.io push
@@ -92,7 +93,7 @@ jobs:
 
       # ── Post-build: vulnerability scan ────────────────────────────────────
       - name: Scan image for vulnerabilities (Trivy)
-        uses: aquasecurity/trivy-action@0.30.0
+        uses: aquasecurity/trivy-action@0.29.0
         with:
           image-ref: ${{ steps.image.outputs.path }}:latest
           format: table
