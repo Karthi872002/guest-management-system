@@ -2,5 +2,6 @@ django
 djangorestframework
 markdown
 django-filter
-djangorestframework-simplejwt 
+djangorestframework-simplejwt
 celery
+python-dotenv

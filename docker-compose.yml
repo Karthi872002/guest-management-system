@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+  app:
+    image: karthikeyanthiagarajan/guest-management-system:${APP_VERSION:-latest}
+    container_name: guestmanagement_app
+    ports:
+      - "8000:8000"
+    environment:
+      - CELERY_BROKER_URL=amqp://guest:guest@rabbitmq:5672//
+    volumes:
+      - sqlite_data:/guestmanagement/db.sqlite3
+    depends_on:
+      - rabbitmq
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -14,4 +26,5 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
 volumes:
+  sqlite_data:
   rabbitmq_data:
